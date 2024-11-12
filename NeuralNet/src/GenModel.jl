@@ -9,12 +9,12 @@ point_count = 100
 X = rand(point_count, 1)
 X = (X .- mean(X)) ./ std(X)
 
-layer_sizes = [1, 64, 32, 16, 8, 1]
+layer_sizes = [1, 128, 64, 32, 16, 1]
 activations = [NNLib.Activations.relu, NNLib.Activations.leaky_relu, NNLib.Activations.relu, NNLib.Activations.relu, identity]
 
 # Initialize the network
 model = NNLib.NeuralNetwork.initialize_network(layer_sizes, activations)
-optimizer = NNLib.Optimizer.SGD(0.01)
+optimizer = NNLib.Optimizer.SGD(0.001)
 
 epochs = Inf
 batch_size = 100

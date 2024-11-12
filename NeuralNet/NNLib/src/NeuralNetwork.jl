@@ -10,7 +10,7 @@ struct NeuralNetworkModel
 end
 
 # Precision of model initialization
-precision = 0.005
+precision = 0.01
 
 # Initialize the neural network with random weights and biases
 function initialize_network(layer_sizes::Vector{Int}, activations::Vector{Function})
@@ -38,7 +38,6 @@ function forward_pass(nn::NeuralNetworkModel, X::Matrix{Float64})
     # Return final activation (output of the network)
     return activations_list
 end
-
 
 # Backpropagation: compute gradients for weights and biases
 function backward_pass(nn::NeuralNetworkModel, X::Matrix{Float64}, y::Matrix{Float64}, activations_list::Vector{Matrix{Float64}})
