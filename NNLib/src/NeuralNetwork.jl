@@ -1,7 +1,5 @@
 module NeuralNetwork
 
-using ..Activations
-
 # Define the neural network model
 struct NeuralNetworkModel
     layers::Vector{Matrix{Float64}}    # List of weight matrices for each layer

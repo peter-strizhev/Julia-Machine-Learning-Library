@@ -1,11 +1,11 @@
-module MySimpleNN
+module NNLib
 
 # Include all source files
-include("src/activations.jl")
-include("src/NeuralNetwork.jl")
-include("src/optimizer.jl")
-include("src/data_utils.jl")
-include("src/train.jl")
+include("activations.jl")
+include("NeuralNetwork.jl")
+include("optimizer.jl")
+include("data_utils.jl")
+include("train.jl")
 
 # Use submodules
 using .Optimizer
