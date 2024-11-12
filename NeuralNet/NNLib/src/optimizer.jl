@@ -6,11 +6,9 @@ struct SGD
 end
 
 # Update rule for SGD
-function update!(optimizer::SGD, layer, gradients_w, gradients_b)
-    # Update weights and biases for each layer using the SGD rule
-    layer.weights .-= optimizer.lr * gradients_w
-    layer.bias .-= optimizer.lr * gradients_b
+function update!(optimizer::SGD, weights::Matrix{Float64}, gradients_w::Matrix{Float64}, biases::Vector{Float64}, gradients_b::Vector{Float64})
+    weights .-= optimizer.lr * gradients_w
+    biases .-= optimizer.lr * gradients_b
 end
-
 
 end  # module Optimizer

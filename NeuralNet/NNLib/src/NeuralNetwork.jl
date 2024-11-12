@@ -1,5 +1,7 @@
 module NeuralNetwork
 
+using ..Activations
+
 # Define the neural network model
 struct NeuralNetworkModel
     layers::Vector{Matrix{Float64}}    # List of weight matrices for each layer
@@ -15,7 +17,7 @@ function initialize_network(layer_sizes::Vector{Int}, activations::Vector{Functi
 end
 
 # Perform a forward pass through the network
-function forward_pass(nn::NeuralNetworkModel, X::Matrix{Float64})
+function forward_pass(nn, X::Matrix{Float64})
     activations = X
     activations_list = [X]  # Save activations for later use in backpropagation
     for (W, b, activation) in zip(nn.layers, nn.biases, nn.activations)
@@ -31,27 +33,27 @@ function backward_pass(nn::NeuralNetworkModel, X::Matrix{Float64}, y::Matrix{Flo
     # Initialize gradients
     gradients_w = []
     gradients_b = []
-    
+
     # Compute the error at the output layer
     error = activations_list[end] .- y  # Error at the output layer
     delta = error .* Activations.dsigmoid(activations_list[end])  # Using sigmoid derivative for the output layer
-    
+
     # Backpropagate the error to previous layers
     for i in length(nn.layers):-1:1
         # Compute gradients for weights and biases
         gradient_w = delta' * activations_list[i]  # Gradient for weights
         gradient_b = sum(delta, dims=1)            # Gradient for biases
-        
+
         # Store gradients
         push!(gradients_w, gradient_w)
         push!(gradients_b, gradient_b)
-        
+
         # Backpropagate to the previous layer (if not the first layer)
         if i > 1
             delta = (delta * nn.layers[i]) .* Activations.dsigmoid(activations_list[i])
         end
     end
-    
+
     # Reverse the gradients list because we need to apply updates in the correct order
     return reverse(gradients_w), reverse(gradients_b)
 end

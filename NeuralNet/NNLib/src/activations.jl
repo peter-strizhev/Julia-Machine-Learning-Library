@@ -1,6 +1,6 @@
 module Activations
 
-function relu(x::AbstractArray)
+function relu(x)
     return max.(0, x)
 end
 
