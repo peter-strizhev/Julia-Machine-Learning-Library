@@ -17,16 +17,25 @@ function initialize_network(layer_sizes::Vector{Int}, activations::Vector{Functi
 end
 
 # Perform a forward pass through the network
-function forward_pass(nn, X::Matrix{Float64})
+function forward_pass(nn::NeuralNetworkModel, X::Matrix{Float64})
     activations = X
     activations_list = [X]  # Save activations for later use in backpropagation
+    
     for (W, b, activation) in zip(nn.layers, nn.biases, nn.activations)
-        z = activations * W' .+ b'
+        # Ensure weight matrix W is transposed for correct matrix multiplication
+        z = activations * W' .+ b'  # W' ensures correct dimensions for multiplication
+        
+        # Apply activation function
         activations = activation.(z)
+        
+        # Save activations for each layer
         push!(activations_list, activations)
     end
+    
+    # Return final activation (output of the network)
     return activations_list
 end
+
 
 # Backpropagation: compute gradients for weights and biases
 function backward_pass(nn::NeuralNetworkModel, X::Matrix{Float64}, y::Matrix{Float64}, activations_list::Vector{Matrix{Float64}})
