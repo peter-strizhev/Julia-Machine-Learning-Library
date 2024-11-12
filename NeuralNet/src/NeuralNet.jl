@@ -14,11 +14,11 @@ X_test = (X_test .- mean(X_test)) ./ std(X_test)  # Scale them similarly to the 
 
 # Calculate true y values for test data
 sign = rand([-1, 1])
-y_test = (sign .* X_test.^3) .+ 0.1 * randn(100, 1)
+y_test = (sign .* X_test.^2) .+ 0.1 * randn(100, 1)
 y_test = (y_test .- mean(y_test)) ./ std(y_test)
 
 # Get model predictions for all test data (X_test)
-predictions = NNLib.NeuralNetwork.forward_pass(loaded_model, y_test)
+predictions = NNLib.NeuralNetwork.forward_pass(loaded_model, X_test)
 
 # Select the corresponding successful predictions and their X values
 successful_predictions = predictions[end]

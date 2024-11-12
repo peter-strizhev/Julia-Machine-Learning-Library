@@ -32,7 +32,7 @@ function dtanh(x)
 end
 
 # Leaky ReLU activation function
-function leaky_relu(x, alpha=0.01)
+function leaky_relu(x, alpha=0.001)
     return max.(alpha .* x, x)
 end
 
