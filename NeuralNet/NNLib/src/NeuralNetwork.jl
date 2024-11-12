@@ -9,13 +9,10 @@ struct NeuralNetworkModel
     activations::Vector{Function}      # List of activation functions for each layer
 end
 
-# Precision of model initialization
-precision = 0.01
-
 # Initialize the neural network with random weights and biases
 function initialize_network(layer_sizes::Vector{Int}, activations::Vector{Function})
-    layers = [randn(layer_sizes[i+1], layer_sizes[i]) * precision for i in 1:length(layer_sizes)-1]
-    biases = [randn(layer_sizes[i+1]) * precision for i in 1:length(layer_sizes)-1]
+    layers = [randn(layer_sizes[i+1], layer_sizes[i]) * 0.01 for i in 1:length(layer_sizes)-1]
+    biases = [randn(layer_sizes[i+1]) * 0.01 for i in 1:length(layer_sizes)-1]
     NeuralNetworkModel(layers, biases, activations)
 end
 
