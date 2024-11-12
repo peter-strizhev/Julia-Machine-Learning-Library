@@ -4,7 +4,7 @@ using ..DataUtils
 using ..NeuralNetwork
 using ..Optimizer
 
-function train!(model, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-4)
+function train!(model, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-6)
     epoch = 1
     loss = Inf  # Initialize loss to a high value to enter the loop
     previous_loss = Inf  # Initialize previous loss
