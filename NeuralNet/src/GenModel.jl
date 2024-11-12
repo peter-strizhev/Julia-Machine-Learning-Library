@@ -13,7 +13,7 @@ X = (X .- mean(X)) ./ std(X)
 y = X.^2 .+ 0.1 * randn(point_count, 1)  # Adding noise to exponential data
 y = (y .- mean(y)) ./ std(y)
 
-layer_sizes = [1, 4096, 1024,  1]
+layer_sizes = [1, 4096, 2048,  1]
 activations = [NNLib.Activations.relu, NNLib.Activations.relu, identity]
 
 # Initialize the network
@@ -23,12 +23,12 @@ optimizer = NNLib.Optimizer.SGD(0.01)
 # Set the training parameters
 epochs = Inf
 batch_size = 1000
-target_loss = 0.015
+target_loss = 0.01
 
 # Additional parameters for dynamic learning rate decay
 min_lr = 1e-6            # Minimum learning rate
-decay_factor = 0.001     # Factor by which learning rate is reduced
-patience = 2            # Number of epochs to wait without improvement before decaying the learning rate
+decay_factor = 1       # Factor by which learning rate is reduced
+patience = 100           # Number of epochs to wait without improvement before decaying the learning rate
 
 # Train the model with the updated train! function
 NNLib.Train.train!(model, X, y, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)

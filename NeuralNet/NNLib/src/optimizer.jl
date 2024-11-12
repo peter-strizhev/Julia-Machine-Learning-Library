@@ -1,7 +1,7 @@
 module Optimizer
 
 # Stochastic Gradient Descent (SGD) optimizer
-struct SGD
+mutable struct SGD
     lr::Float64  # Learning rate
 end
 
