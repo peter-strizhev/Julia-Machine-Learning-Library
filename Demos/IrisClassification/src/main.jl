@@ -75,8 +75,8 @@ input_size = 4
 hidden_size = 2048
 output_size = 3
 
-layer_sizes = [input_size, hidden_size, hidden_size, output_size]
-activations = [NNLib.Activations.relu, NNLib.Activations.relu, identity]  # Make sure there is one less activation than layers
+layer_sizes = [input_size, hidden_size, output_size]
+activations = [NNLib.Activations.relu, identity]  # Make sure there is one less activation than layers
 
 # Initialize the model
 model = NNLib.NeuralNetwork.initialize_network(layer_sizes, activations, 0.01)
@@ -96,7 +96,6 @@ NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, targe
 # Generate predictions
 predictions = NNLib.NeuralNetwork.forward_pass(model, X_test)
 predicted_classes = [index[1] for index in argmax(predictions, dims=2)] .- 1
-
 colors = [:red, :green, :blue]  # One color per class
 
 # Scatter plot of the first two features (Sepal Length and Sepal Width)
