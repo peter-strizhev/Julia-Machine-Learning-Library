@@ -6,7 +6,8 @@ using ..Optimizer
 
 function train!(model, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-6)
     epoch = 1
-    loss = Inf  # Initialize loss to a high value to enter the loop
+    local loss::Float64  # Initialize loss to a high value to enter the loop
+    loss = Inf64
     previous_loss = Inf  # Initialize previous loss
     epochs_since_improvement = 0  # Counter to track the number of epochs since the last improvement
 
