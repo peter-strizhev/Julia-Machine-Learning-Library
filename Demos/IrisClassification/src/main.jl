@@ -51,6 +51,25 @@ println("y_train size: ", size(y_train))
 println("X_test size: ", size(X_test))
 println("y_test size: ", size(y_test))
 
+
+scatter(X[:, 1], X[:, 2], 
+        color = y_int,
+        xlabel = "Sepal Length", ylabel = "Sepal Width", 
+        title = "Iris Dataset - Sepal Length vs Sepal Width", 
+        label = ["Iris-setosa" "Iris-versicolor" "Iris-virginica"], 
+        legend = :topright)
+
+
+# Add labels and title
+xlabel!("Sample Index")
+ylabel!("Class Label")
+title!("True Labels for Iris Dataset")
+
+# Show the plot
+display(plot)
+savefig("iris_real_data_plot.png")
+
+
 # Define the neural network architecture
 input_size = 4
 hidden_size = 4096
@@ -83,15 +102,16 @@ true_classes = [index[1] for index in argmax(y_test, dims=2)] .- 1
 
 # Plot the true vs. predicted values
 # scatter(1:length(true_classes), true_classes, label="True Labels", color=:blue, markersize=4)
-scatter(1:length(predicted_classes), predicted_classes, label="Predicted Labels", color=:yellow, markersize=4)
 
-scatter!(X[:, 1], X[:, 2], 
-        color = y_int, 
+colors = [:red, :green, :blue]  # One color per class
+
+# Scatter plot of the first two features (Sepal Length and Sepal Width)
+scatter(X[:, 1], X[:, 2], 
+        color = [colors[class+1] for class in predicted_classes],  # Map predicted class to color
         xlabel = "Sepal Length", ylabel = "Sepal Width", 
-        title = "Iris Dataset - Sepal Length vs Sepal Width", 
-        label = ["Iris-setosa" "Iris-versicolor" "Iris-virginica"], 
+        title = "Iris Dataset - Predicted Classes",
+        label = ["Iris-setosa" "Iris-versicolor" "Iris-virginica"],  # Labels for the classes
         legend = :topright)
-
 
 # Add labels and title
 xlabel!("Sample Index")
@@ -100,10 +120,4 @@ title!("True vs. Predicted Labels for Iris Dataset")
 
 # Show the plot
 display(plot)
-
-# Create a confusion matrix
-# cm = ConfusionMatrix(predicted_classes, true_classes)
-
-# Plot the confusion matrix
-# heatmap(cm, title="Confusion Matrix", xlabel="Predicted", ylabel="True", color=:Blues)
 savefig("iris_predictions_plot.png")
