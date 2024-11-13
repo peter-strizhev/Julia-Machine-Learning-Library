@@ -1,44 +1,55 @@
 # run_network.jl
 include("../NNLib/src/NNLib.jl")
 
+# Load the Iris dataset
 using MLDatasets
-using DataFrames
 using Random
 using Statistics
 using LinearAlgebra
 using Plots
+using DataFrames
+using EvalMetrics
 
-# Load the Iris dataset
+# Step 1: Load the Iris dataset
 iris_data = MLDatasets.Iris()
 
-X = iris_data.features  # Extract features
-y = iris_data.targets   # Extract targets
+# Extract features and targets
+X = iris_data.features  # Features (sepal length, sepal width, petal length, petal width)
+y = iris_data.targets   # Targets (species names)
 
-X = Matrix(X)
-X = (X .- mean(X, dims=1)) ./ std(X, dims=1)
+# Convert features (X) into a matrix and normalize (standardization)
+X = Matrix(X)  # Convert to matrix format
+X = (X .- mean(X, dims=1)) ./ std(X, dims=1)  # Z-score normalization
 
+# Step 2: Convert labels (y) into numeric values (integer encoding)
 label_map = Dict("Iris-setosa" => 0, "Iris-versicolor" => 1, "Iris-virginica" => 2)
 
-y_int = [label_map[row[:class]] for row in eachrow(y)]
+y_int = [label_map[label] for label in y.class]  # Convert species names to integers
 
+# Step 3: One-hot encode the labels (y) for neural network output
 function one_hot_encode(labels, num_classes)
-    return hcat([Float64.(I(num_classes)[label + 1, :]) for label in labels]...)
+    return hcat([Float64.(labels .== i) for i in 0:num_classes-1]...)  # One-hot encoding
 end
 
-y_one_hot = one_hot_encode(y_int, 3)
-y_one_hot = hcat(y_one_hot...)'
+y_one_hot = one_hot_encode(y_int, 3)  # 3 classes in total
 
-# Shuffle X and y together
+# Step 4: Shuffle the dataset (to ensure random splits)
 shuffled_indices = shuffle(1:size(X, 1))
 X_shuffled = X[shuffled_indices, :]
 y_shuffled = y_one_hot[shuffled_indices, :]
 
-# Split into training and testing sets
+# Step 5: Split the dataset into training and testing sets (80% training, 20% testing)
 train_ratio = 0.8
 split_idx = Int(round(train_ratio * size(X, 1)))
 
 X_train, y_train = X_shuffled[1:split_idx, :], y_shuffled[1:split_idx, :]
 X_test, y_test = X_shuffled[split_idx+1:end, :], y_shuffled[split_idx+1:end, :]
+
+# Step 6: Check the shapes of the resulting datasets
+println("X_train size: ", size(X_train))
+println("y_train size: ", size(y_train))
+println("X_test size: ", size(X_test))
+println("y_test size: ", size(y_test))
 
 # Define the neural network architecture
 input_size = 4
@@ -52,37 +63,47 @@ activations = [NNLib.Activations.relu, identity]  # Make sure there is one less 
 model = NNLib.NeuralNetwork.initialize_network(layer_sizes, activations, 0.001)
 
 # Set up the optimizer and training parameters
-optimizer = NNLib.Optimizer.SGD(0.0001)
+optimizer = NNLib.Optimizer.SGD(0.001)
 epochs = Inf
 batch_size = 1000
-target_loss = 0.05
+target_loss = 0.08
 min_lr = 1.0e-6
 decay_factor = 0.99
-patience = 1000
+patience = Inf
 
 # Train the model on the Iris dataset
 NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
 
 # Generate predictions
 predictions = NNLib.NeuralNetwork.forward_pass(model, X_test)
+predicted_classes = [index[1] for index in argmax(predictions, dims=2)] .- 1
 
-# Flatten y_test to a 1D vector with 4 elements
-y_test = vec(y_test)
+true_classes = [index[1] for index in argmax(y_test, dims=2)] .- 1
 
-# Select the corresponding successful predictions and their X values
-successful_predictions = predictions[end]
 
-# Sort the X_test values in ascending order and rearrange corresponding y_test and predictions
-sorted_indices = sortperm(X_test[:, 1])  # Sort based on the first column of X_test
-X_test_sorted = X_test[sorted_indices, :]  # Reorder X_test
-y_test_sorted = y_test[sorted_indices]  # Reorder y_test accordingly
-successful_predictions_sorted = successful_predictions[sorted_indices]  # Reorder predictions accordingly
+# Plot the true vs. predicted values
+# scatter(1:length(true_classes), true_classes, label="True Labels", color=:blue, markersize=4)
+scatter(1:length(predicted_classes), predicted_classes, label="Predicted Labels", color=:yellow, markersize=4)
 
-# Plot the true data points (y_test) and model predictions as continuous lines
-scatter(X_test, y_test, label="Data Points", legend=:topleft)
-plot!(X_test_sorted[:, 1], successful_predictions_sorted, label="Predictions", color=:red, linewidth=2)
+scatter!(X[:, 1], X[:, 2], 
+        color = y_int, 
+        xlabel = "Sepal Length", ylabel = "Sepal Width", 
+        title = "Iris Dataset - Sepal Length vs Sepal Width", 
+        label = ["Iris-setosa" "Iris-versicolor" "Iris-virginica"], 
+        legend = :topright)
 
-# Save the plot as a PNG
-png_path = "successful_predictions_plot.png"
-savefig(png_path)
-println("Plot saved as $png_path")
+
+# Add labels and title
+xlabel!("Sample Index")
+ylabel!("Class Label")
+title!("True vs. Predicted Labels for Iris Dataset")
+
+# Show the plot
+display(plot)
+
+# Create a confusion matrix
+# cm = ConfusionMatrix(predicted_classes, true_classes)
+
+# Plot the confusion matrix
+# heatmap(cm, title="Confusion Matrix", xlabel="Predicted", ylabel="True", color=:Blues)
+savefig("iris_predictions_plot.png")
