@@ -62,4 +62,16 @@ function dmish(x)
     return mish(x) .+ x .* (1 .- tanh.(log1p.(exp.(x))).^2) .* exp.(x) ./ (1 .+ exp.(x))
 end
 
+# Softmax activation function
+function softmax(x)
+    exp_x = exp.(x .- maximum(x))  # To prevent overflow
+    return exp_x ./ sum(exp_x)
+end
+
+# Derivative of Softmax activation function
+function dsoftmax(x)
+    s = softmax(x)
+    return s .* (1 .- s)  # Simplified version for diagonal derivative
+end
+
 end  # module Activations
