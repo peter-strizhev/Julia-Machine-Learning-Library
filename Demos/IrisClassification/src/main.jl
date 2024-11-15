@@ -38,8 +38,8 @@ shuffled_indices = shuffle(1:size(X, 1))
 X_shuffled = X[shuffled_indices, :]
 y_shuffled = y_one_hot[shuffled_indices, :]
 
-# Split the dataset into training and testing sets (80% training, 20% testing)
-train_ratio = 0.8
+# Split the dataset into training and testing sets (90% training, 10% testing)
+train_ratio = 0.9
 split_idx = Int(round(train_ratio * size(X, 1)))
 
 X_train, y_train = X_shuffled[1:split_idx, :], y_shuffled[1:split_idx, :]
@@ -51,18 +51,16 @@ println("y_train size: ", size(y_train))
 println("X_test size: ", size(X_test))
 println("y_test size: ", size(y_test))
 
-
 # scatter(X[:, 1], X[:, 2], 
 #         color = y_int,
-#         xlabel = "Sepal Length", ylabel = "Sepal Width", 
 #         title = "Iris Dataset - Sepal Length vs Sepal Width", 
 #         label = ["Iris-setosa" "Iris-versicolor" "Iris-virginica"], 
 #         legend = :topright)
 
 
 # # Add labels and title
-# xlabel!("Sample Index")
-# ylabel!("Class Label")
+# xlabel!("Sepal Length")
+# ylabel!("Sepal Width")
 # title!("True Labels for Iris Dataset")
 
 # # Show the plot
@@ -72,43 +70,67 @@ println("y_test size: ", size(y_test))
 
 # Define the neural network architecture
 input_size = 4
-hidden_size = 2048
 output_size = 3
 
-layer_sizes = [input_size, hidden_size, output_size]
-activations = [NNLib.Activations.relu, identity]  # Make sure there is one less activation than layers
+layer_sizes = [input_size, 64, 32, output_size]
+activations = [NNLib.Activations.relu, NNLib.Activations.relu, identity]  # Make sure there is one less activation than layers
 
 # Initialize the model
-model = NNLib.NeuralNetwork.initialize_network(layer_sizes, activations, 0.01)
+# model = NNLib.NeuralNetwork.initialize_network(layer_sizes, activations, 0.01)
 
-# Set up the optimizer and training parameters
-optimizer = NNLib.Optimizer.SGD(0.001)
-epochs = Inf
-batch_size = 1000
-target_loss = 0.05
-min_lr = 1.0e-6
-decay_factor = 0.99
-patience = Inf
+# # Set up the optimizer and training parameters
+# optimizer = NNLib.Optimizer.SGD(0.001)
+# epochs = Inf
+# batch_size = 135
+# target_loss = 0.075
+# min_lr = 1.0e-6
+# decay_factor = 0.99
+# patience = Inf
 
-# Train the model on the Iris dataset
-NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
+# # Train the model on the Iris dataset
+# NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
+
+# optimizer = NNLib.Optimizer.SGD(0.0001)
+# epochs = Inf
+# batch_size = 135
+# target_loss = 0.072
+# min_lr = 1.0e-6
+# decay_factor = 0.99
+# patience = Inf
+
+# NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
+
+# optimizer = NNLib.Optimizer.SGD(0.00001)
+# epochs = Inf
+# batch_size = 135
+# target_loss = 0.05
+# min_lr = 1.0e-6
+# decay_factor = 0.99
+# patience = Inf
+
+# NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
+
+# NNLib.SaveModel.save_model(model, "Temp.jld2")
+
+model = NNLib.LoadModel.load_model("/Users/admin/Documents/GitHub/Julia-Machine-Learning-Library/Demos/IrisClassification/Temp.jld2")
 
 # Generate predictions
 predictions = NNLib.NeuralNetwork.forward_pass(model, X_test)
-predicted_classes = [index[1] for index in argmax(predictions, dims=2)] .- 1
-colors = [:red, :green, :blue]  # One color per class
+predicted_classes = predictions[end]
+
+# Find the predicted class for each test sample by taking the argmax
+y_output_classes = [argmax(predicted_classes[i, :]) for i in 1:size(predicted_classes, 1)]
 
 # Scatter plot of the first two features (Sepal Length and Sepal Width)
-scatter(X[:, 1], X[:, 2], 
-        color = [colors[class+1] for class in predicted_classes],  # Map predicted class to color
-        xlabel = "Sepal Length", ylabel = "Sepal Width", 
+scatter(X_test[:, 1], X_test[:, 2], 
+        color = y_output_classes,  # Map predicted class to color
         title = "Iris Dataset - Predicted Classes",
         label = ["Iris-setosa" "Iris-versicolor" "Iris-virginica"],  # Labels for the classes
         legend = :topright)
 
 # Add labels and title
-xlabel!("Sample Index")
-ylabel!("Class Label")
+xlabel!("Sepal Length")
+ylabel!("Sepal Width")
 title!("True vs. Predicted Labels for Iris Dataset")
 
 # Show the plot
