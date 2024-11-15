@@ -38,12 +38,11 @@ shuffled_indices = shuffle(1:size(X, 1))
 X_shuffled = X[shuffled_indices, :]
 y_shuffled = y_one_hot[shuffled_indices, :]
 
-# Split the dataset into training and testing sets (90% training, 10% testing)
-train_ratio = 0.9
+# Split the dataset into training and testing sets, testing sets not utilized
+train_ratio = 0.8
 split_idx = Int(round(train_ratio * size(X, 1)))
 
 X_train, y_train = X_shuffled[1:split_idx, :], y_shuffled[1:split_idx, :]
-X_test, y_test = X_shuffled[split_idx+1:end, :], y_shuffled[split_idx+1:end, :]
 
 # Define the neural network architecture
 input_size = 4
@@ -65,28 +64,19 @@ decay_factor = 0.99
 patience = Inf
 
 # Train the model on the Iris dataset
-# Conduct 3 runs of the training, each with a more precise optimizer
+# Conduct 3 training runs, each with a more precise optimizer
+# TODO: add functionality for multiple training runs into Train.train!()
 NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
 NNLib.SaveModel.save_model(model, "Iris_Model_0074.jld2")
 
 optimizer = NNLib.Optimizer.SGD(0.00025)
-epochs = Inf
-batch_size = 135
 target_loss = 0.065
-min_lr = 1.0e-6
-decay_factor = 0.99
-patience = Inf
 
 NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
 NNLib.SaveModel.save_model(model, "Iris_Model_0065.jld2")
 
 optimizer = NNLib.Optimizer.SGD(0.0001)
-epochs = Inf
-batch_size = 135
 target_loss = 0.063
-min_lr = 1.0e-6
-decay_factor = 0.99
-patience = Inf
 
 NNLib.Train.train!(model, X_train, y_train, optimizer, epochs, batch_size, target_loss, min_lr, decay_factor, patience)
 

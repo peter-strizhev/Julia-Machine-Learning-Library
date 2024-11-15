@@ -26,7 +26,8 @@ label_map = Dict("Iris-setosa" => 0, "Iris-versicolor" => 1, "Iris-virginica" =>
 
 y_int = [label_map[label] for label in y.class]  # Convert species names to integers
 
-scatter(X[:, 1], X[:, 2], X[:, 3], c=y_int, lw = 1, dpi=600)
+# Scatter actual data
+scatter(X[:, 1], X[:, 2], X[:, 3], c=y_int)
 
 # Add labels and title
 xlabel!("Sepal Length")
@@ -44,18 +45,10 @@ predictions = NNLib.NeuralNetwork.forward_pass(model, X)
 predicted_classes = predictions[end]
 
 # Find the predicted class for each test sample by taking the argmax
-y_output_classes = [argmax(predicted_classes[i, :]) for i in 1:size(predicted_classes, 1)]
+model_y_output = [argmax(predicted_classes[i, :]) for i in 1:size(predicted_classes, 1)]
 
-# Scatter plot of the first two features (Sepal Length and Sepal Width)
-# scatter(X[:, 1], X[:, 2], 
-#         color = y_output_classes,  # Map predicted class to color
-#         label = ["Iris-setosa" "Iris-versicolor" "Iris-virginica"],  # Labels for the classes
-#         legend = :topright)
-
-# scatter3d(X[:, 1], X[:, 2], X[:, 3], 
-#           color = y_output_classes)
-
-scatter(X[:, 1], X[:, 2], X[:, 3], c=y_output_classes, lw = 1, label=false, dpi=600)
+# Scatter model output on 3d graph
+scatter(X[:, 1], X[:, 2], X[:, 3], c=model_y_output)
 
 # Add labels and title
 xlabel!("Sepal Length")
