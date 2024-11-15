@@ -1,0 +1,10 @@
+name = "LLMDemo"
+uuid = "7678fe29-a53d-4d8f-b5df-17ee4b27c347"
+authors = ["Peter Strizhev <36052174+peter-strizhev@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+
+[compat]
+DataFrames = "1.7.0"
