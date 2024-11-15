@@ -24,3 +24,4 @@ docs/site/
 Manifest.toml
 NeuralNet/successful_predictions_plot.png
 NeuralNet/my_trained_model.jld2
+.DS_Store

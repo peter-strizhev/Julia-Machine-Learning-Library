@@ -4,7 +4,7 @@ using ..DataUtils
 using ..NeuralNetwork
 using ..Optimizer
 
-function train!(model, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-6)
+function train!(model::NeuralNetworkModel, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-6)
     epoch = 1
     local loss::Float64  # Initialize loss to a high value to enter the loop
     loss = Inf64
@@ -60,6 +60,72 @@ function train!(model, X, y, optimizer, epochs, batch_size, target_loss=0.05, mi
         println("\nTraining stopped early. Loss has reached the target value of $target_loss.")
     else
         println("\nTraining completed after $epochs epochs. Final loss: $loss")
+    end
+end
+
+function train_rnn!(model::RecurrentNeuralNetworkModel, 
+                    data::Vector{Tuple{Vector{Vector{Float64}}, Vector{Vector{Float64}}}}, 
+                    num_epochs::Int, 
+                    learning_rate::Float64)
+    Wxh, Whh, bh, Why, by = model.Wxh, model.Whh, model.bh, model.Why, model.by
+    hidden_size = model.hidden_size
+
+    for epoch in 1:num_epochs
+        total_loss = 0.0
+
+        for (inputs, targets) in data
+            # Initialize gradients
+            dWxh = zeros(size(Wxh))
+            dWhh = zeros(size(Whh))
+            dbh = zeros(size(bh))
+            dWhy = zeros(size(Why))
+            dby = zeros(size(by))
+
+            # Forward pass
+            h_prev = zeros(hidden_size)
+            h_states = Vector{Vector{Float64}}(undef, length(inputs))
+            y_pred = Vector{Vector{Float64}}(undef, length(inputs))
+            loss = 0.0
+
+            for t in 1:length(inputs)
+                h_prev = tanh(Wxh * inputs[t] + Whh * h_prev + bh)
+                h_states[t] = h_prev
+                y_pred[t] = Why * h_prev + by
+
+                # Compute loss (mean squared error)
+                loss += sum((y_pred[t] .- targets[t]).^2)
+            end
+            total_loss += loss / length(inputs)
+
+            print("\rEpoch: $epoch, Loss: $total_loss")
+            flush(stdout)  # Ensure output is immediately written
+
+            # Backpropagation through time
+            dh_next = zeros(hidden_size)
+            for t in reverse(1:length(inputs))
+                # Output layer gradients
+                dy = 2 * (y_pred[t] .- targets[t])
+                dWhy += dy * h_states[t]'
+                dby += dy
+
+                # Hidden layer gradients
+                dh = Why' * dy + dh_next
+                dh_raw = (1 .- h_states[t].^2) .* dh
+                dWxh += dh_raw * inputs[t]'
+                dWhh += dh_raw * (t > 1 ? h_states[t-1] : zeros(hidden_size))'
+                dbh += dh_raw
+                dh_next = Whh' * dh_raw
+            end
+
+            # Update parameters using gradient descent
+            model.Wxh -= learning_rate * dWxh
+            model.Whh -= learning_rate * dWhh
+            model.bh -= learning_rate * dbh
+            model.Why -= learning_rate * dWhy
+            model.by -= learning_rate * dby
+        end
+
+        println("Epoch $epoch, Loss: $total_loss")
     end
 end
 
