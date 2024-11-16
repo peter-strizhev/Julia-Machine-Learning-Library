@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+NNLib = "83f712c8-36f8-4c72-8822-c55a04184eae"
 
 [compat]
 DataFrames = "1.7.0"

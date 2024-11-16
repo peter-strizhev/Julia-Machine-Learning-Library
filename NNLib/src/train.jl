@@ -4,7 +4,7 @@ using ..DataUtils
 using ..NeuralNetwork
 using ..Optimizer
 
-function train!(model::NeuralNetworkModel, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-6)
+function train!(model::NeuralNetwork.NeuralNetworkModel, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-6)
     epoch = 1
     local loss::Float64  # Initialize loss to a high value to enter the loop
     loss = Inf64
@@ -63,9 +63,10 @@ function train!(model::NeuralNetworkModel, X, y, optimizer, epochs, batch_size, 
     end
 end
 
-function train_rnn!(model::RecurrentNeuralNetworkModel, 
-                    data::Vector{Tuple{Vector{Vector{Float64}}, Vector{Vector{Float64}}}}, 
-                    num_epochs::Int, 
+function train_rnn!(model::NeuralNetwork.RecurrentNeuralNetworkModel, 
+                    X_batch::Vector{Vector{Int64}}, 
+                    Y_batch::Vector{Vector{Int64}}, 
+                    num_epochs, 
                     learning_rate::Float64)
     Wxh, Whh, bh, Why, by = model.Wxh, model.Whh, model.bh, model.Why, model.by
     hidden_size = model.hidden_size
@@ -73,7 +74,16 @@ function train_rnn!(model::RecurrentNeuralNetworkModel,
     for epoch in 1:num_epochs
         total_loss = 0.0
 
-        for (inputs, targets) in data
+        # Loop over each sequence in X_batch and Y_batch
+        for i in 1:length(X_batch)
+            # Get the inputs and targets for the current sequence
+            inputs = X_batch[i]
+            targets = Y_batch[i]
+            
+            # Convert to Float64 for model compatibility
+            inputs = [Float64(x) for x in inputs]
+            targets = [Float64(y) for y in targets]
+
             # Initialize gradients
             dWxh = zeros(size(Wxh))
             dWhh = zeros(size(Whh))
@@ -128,5 +138,6 @@ function train_rnn!(model::RecurrentNeuralNetworkModel,
         println("Epoch $epoch, Loss: $total_loss")
     end
 end
+
 
 end  # module Train
