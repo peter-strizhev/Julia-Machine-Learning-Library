@@ -21,9 +21,9 @@ function dsigmoid(x)
     return s .* (1 .- s)
 end
 
-# Tanh activation function
+# Correct tanh function (no recursion)
 function tanh(x)
-    return tanh.(x)
+    return Base.tanh.(x)  # Apply the tanh function element-wise
 end
 
 # Derivative of Tanh activation function

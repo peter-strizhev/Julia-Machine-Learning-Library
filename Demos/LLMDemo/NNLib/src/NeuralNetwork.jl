@@ -3,13 +3,13 @@ module NeuralNetwork
 using ..Activations
 
 # Define the neural network model
-struct NeuralNetworkModel
+mutable struct NeuralNetworkModel
     layers::Vector{Matrix{Float64}}    # List of weight matrices for each layer
     biases::Vector{Vector{Float64}}    # List of bias vectors for each layer
     activations::Vector{Function}      # List of activation functions for each layer
 end
 
-struct RecurrentNeuralNetworkModel
+mutable struct RecurrentNeuralNetworkModel
     Wxh::Matrix{Float64}  # Input-to-hidden weights
     Whh::Matrix{Float64}  # Hidden-to-hidden weights
     bh::Vector{Float64}   # Hidden bias

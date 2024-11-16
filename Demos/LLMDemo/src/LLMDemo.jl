@@ -78,7 +78,7 @@ precision = 0.01
 
 model = NNLib.NeuralNetwork.initialize_rnn(hidden_size, input_size, output_size, precision)
 
-epochs = Inf
+epochs = 1000
 precision = 0.001
 
 NNLib.Train.train_rnn!(model, X_batch, Y_batch, epochs, precision)

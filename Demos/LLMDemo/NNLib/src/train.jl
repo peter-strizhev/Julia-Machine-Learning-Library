@@ -3,6 +3,7 @@ module Train
 using ..DataUtils
 using ..NeuralNetwork
 using ..Optimizer
+using ..Activations
 
 function train!(model::NeuralNetwork.NeuralNetworkModel, X, y, optimizer, epochs, batch_size, target_loss=0.05, min_lr=1e-6, decay_factor=0.99, patience=10, loss_threshold=1e-6)
     epoch = 1
@@ -66,10 +67,11 @@ end
 function train_rnn!(model::NeuralNetwork.RecurrentNeuralNetworkModel, 
                     X_batch::Vector{Vector{Int64}}, 
                     Y_batch::Vector{Vector{Int64}}, 
-                    num_epochs, 
+                    num_epochs::Int64, 
                     learning_rate::Float64)
     Wxh, Whh, bh, Why, by = model.Wxh, model.Whh, model.bh, model.Why, model.by
     hidden_size = model.hidden_size
+    input_size = size(Wxh, 2)  # Input size should match the number of columns of Wxh
 
     for epoch in 1:num_epochs
         total_loss = 0.0
@@ -81,9 +83,9 @@ function train_rnn!(model::NeuralNetwork.RecurrentNeuralNetworkModel,
             targets = Y_batch[i]
             
             # Convert to Float64 for model compatibility
-            inputs = [Float64(x) for x in inputs]
-            targets = [Float64(y) for y in targets]
-
+            inputs = [Float64(x) for x in inputs]  # Convert to Float64
+            targets = [Float64(y) for y in targets]  # Convert to Float64
+            
             # Initialize gradients
             dWxh = zeros(size(Wxh))
             dWhh = zeros(size(Whh))
@@ -92,40 +94,10 @@ function train_rnn!(model::NeuralNetwork.RecurrentNeuralNetworkModel,
             dby = zeros(size(by))
 
             # Forward pass
-            h_prev = zeros(hidden_size)
-            h_states = Vector{Vector{Float64}}(undef, length(inputs))
-            y_pred = Vector{Vector{Float64}}(undef, length(inputs))
-            loss = 0.0
-
-            for t in 1:length(inputs)
-                h_prev = tanh(Wxh * inputs[t] + Whh * h_prev + bh)
-                h_states[t] = h_prev
-                y_pred[t] = Why * h_prev + by
-
-                # Compute loss (mean squared error)
-                loss += sum((y_pred[t] .- targets[t]).^2)
-            end
-            total_loss += loss / length(inputs)
-
-            print("\rEpoch: $epoch, Loss: $total_loss")
-            flush(stdout)  # Ensure output is immediately written
+            total_loss = NeuralNetwork.rnn_forward(model, inputs, hidden_size)
 
             # Backpropagation through time
-            dh_next = zeros(hidden_size)
-            for t in reverse(1:length(inputs))
-                # Output layer gradients
-                dy = 2 * (y_pred[t] .- targets[t])
-                dWhy += dy * h_states[t]'
-                dby += dy
-
-                # Hidden layer gradients
-                dh = Why' * dy + dh_next
-                dh_raw = (1 .- h_states[t].^2) .* dh
-                dWxh += dh_raw * inputs[t]'
-                dWhh += dh_raw * (t > 1 ? h_states[t-1] : zeros(hidden_size))'
-                dbh += dh_raw
-                dh_next = Whh' * dh_raw
-            end
+            NeuralNetwork.rnn_backward!(model, inputs, h_prev, learning_rate)
 
             # Update parameters using gradient descent
             model.Wxh -= learning_rate * dWxh
@@ -134,8 +106,8 @@ function train_rnn!(model::NeuralNetwork.RecurrentNeuralNetworkModel,
             model.Why -= learning_rate * dWhy
             model.by -= learning_rate * dby
         end
-
-        println("Epoch $epoch, Loss: $total_loss")
+        println("\rEpoch: $epoch, Loss: $total_loss")
+        flush(stdout)  # Ensure output is immediately written
     end
 end
 
