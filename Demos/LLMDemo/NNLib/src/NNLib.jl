@@ -8,5 +8,10 @@ include("data_utils.jl")
 include("train.jl")
 include("loadModel.jl")
 include("saveModel.jl")
+include("transformer.jl")
+
+using .Transformer
+
+export TransformerModel, forward
 
 end

@@ -13,4 +13,10 @@ function save_model(model, filename::String)
     end
 end
 
+function save_transformer(model::NeuralNetwork.TransformerModel, path::String)
+    open(path, "w") do io
+        serialize(io, model)
+    end
+end
+
 end  # End of SaveModel module

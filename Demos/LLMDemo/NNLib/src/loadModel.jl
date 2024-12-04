@@ -20,4 +20,10 @@ function load_model(filename::String)
     return model
 end
 
+function load_transformer(path::String)
+    open(path, "r") do io
+        return deserialize(io)
+    end
+end
+
 end  # End of LoadModel module
