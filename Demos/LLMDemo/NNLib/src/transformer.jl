@@ -76,8 +76,4 @@ function forward(model::TransformerModel, x)
     return x
 end
 
-function build_transformer(num_layers::Int, input_dim::Int, num_heads::Int, head_dim::Int, hidden_dim::Int)
-    return NeuralNetwork.TransformerModel(num_layers, input_dim, num_heads, head_dim, hidden_dim)
-end
-
 end # module

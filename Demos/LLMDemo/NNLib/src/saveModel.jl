@@ -2,6 +2,7 @@ module SaveModel
 
 using JLD2
 using ..NeuralNetwork
+using ..Transformer
 
 # Save model function
 function save_model(model, filename::String)
@@ -13,7 +14,7 @@ function save_model(model, filename::String)
     end
 end
 
-function save_transformer(model::NeuralNetwork.TransformerModel, path::String)
+function save_transformer(model::Transformer.TransformerModel, path::String)
     open(path, "w") do io
         serialize(io, model)
     end

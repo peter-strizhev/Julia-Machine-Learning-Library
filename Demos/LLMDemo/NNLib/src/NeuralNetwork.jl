@@ -1,6 +1,7 @@
 module NeuralNetwork
 
 using ..Activations
+using ..Transformer
 
 # Define the neural network model
 mutable struct NeuralNetworkModel
@@ -132,6 +133,10 @@ function rnn_backward!(model::RecurrentNeuralNetworkModel, inputs::Vector{Vector
     model.bh -= learning_rate * dbh
     model.Why -= learning_rate * dWhy
     model.by -= learning_rate * dby
+end
+
+function build_transformer(num_layers::Int, input_dim::Int, num_heads::Int, head_dim::Int, hidden_dim::Int)
+    return Transformer.TransformerModel(num_layers, input_dim, num_heads, head_dim, hidden_dim)
 end
 
 end  # module NeuralNetwork
