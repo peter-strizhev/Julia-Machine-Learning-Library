@@ -72,8 +72,6 @@ function run_transformer(
     return model
 end
 
-datasetPath = ""
-
-run_transformer(datasetPath)
+export run_transformer
 
 end # module
